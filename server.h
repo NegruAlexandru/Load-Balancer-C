@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, <>
+ * Copyright (c) 2024, Negru Alexandru
  */
 
 #ifndef SERVER_H
@@ -21,13 +21,13 @@ typedef struct request {
 } request;
 
 typedef struct response {
-	char server_log[MAX_LOG_LENGTH];
-	char server_response[MAX_RESPONSE_LENGTH];
+	char *server_log;
+	char *server_response;
 	unsigned int server_id;
 } response;
 
 typedef struct request_queue {
-	request *requests[TASK_QUEUE_SIZE];
+	request **requests;
 	unsigned int size;
 	unsigned int capacity;
 } request_queue;
@@ -41,21 +41,37 @@ typedef struct db {
 typedef struct server {
 	unsigned int server_id;
 	unsigned int hash_ring_position;
-	unsigned int request_queue_size;
 	request_queue *request_queue;
-
 	lru_cache *cache;
 	db *db;
 } server;
 
+/**
+ * init_server() - Initializes a server with the given server_id and
+ * 				cache_size.
+ *
+ * @param server_id: ID of the server.
+ * @param cache_size: Size of the cache.
+ *
+ * @return server*: The newly created server.
+ */
+
 server *init_server(unsigned int server_id, unsigned int cache_size);
 
 /**
- * @brief Should deallocate completely the memory used by server,
+ * @brief Deallocates completely the memory used by server,
  *     taking care of deallocating the elements in the queue, if any,
  *     without executing the tasks
  */
 void free_server(server **s);
+
+/**
+ * free_virtual_server() - Deallocates the memory used by a
+ *			virtual server.
+ * @param s: Server to be deallocated.
+ */
+
+void free_virtual_server(server **s);
 
 /**
  * server_handle_request() - Receives a request from the load balancer
@@ -74,6 +90,34 @@ void free_server(server **s);
  */
 response *server_handle_request(server *s, request *req);
 
-void log_resp_for_cache_full_state(response *response, lru_cache *cache);
+/**
+ * server_enqueue_request() - Adds a request to the server's queue.
+ *
+ * @param server: Server which receives the request.
+ * @param req: Request to be added to the queue.
+ * @param make_response: If true, the server should execute the request
+ *      and return the response, otherwise, the server should only add
+ *      the request to the queue.
+ *
+ * @return response*: Response of the requested operation, if make_response
+ *      is true, otherwise NULL.
+ *
+ * @brief Adds the request to the queue and, if make_response is true,
+ *     wil return the response (used for GET requests).
+ */
+response *server_enqueue_request(server *server, request *req,
+								 bool make_response);
+
+/**
+ * server_execute_all_requests() - Executes all the requests in the queue.
+ *
+ * @param server: Server which executes the requests.
+ *
+ * @return response*: Response of the GET request or NULL.
+ *
+ * @brief Executes all the requests in the queue until it finds a GET
+ *    request, then returns the response of that request.
+ */
+response *server_execute_all_requests(server *server);
 
 #endif  /* SERVER_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, <>
+ * Copyright (c) 2024, Negru Alexandru
  */
 
 #ifndef LOAD_BALANCER_H
@@ -12,13 +12,10 @@
 typedef struct load_balancer {
     unsigned int (*hash_function_servers)(void *);
     unsigned int (*hash_function_docs)(void *);
-
     server *servers[MAX_SERVERS];
 	unsigned int servers_count;
 	bool enable_vnodes;
-	
 } load_balancer;
-
 
 load_balancer *init_load_balancer(bool enable_vnodes);
 
@@ -36,7 +33,8 @@ void free_load_balancer(load_balancer** main);
  * documents to the added server. Before distributing the documents, these
  * servers should execute all the tasks in their queues.
  */
-void loader_add_server(load_balancer* main, unsigned int server_id, unsigned int cache_size);
+void loader_add_server(load_balancer* main, unsigned int server_id,
+					   unsigned int cache_size);
 
 /**
  * loader_remove_server() Removes a server from the system.
@@ -69,6 +67,62 @@ void loader_remove_server(load_balancer* main, unsigned int server_id);
  * using them.
  */
 response *loader_forward_request(load_balancer* main, request *req);
+
+/**
+ * sort_servers() - Sorts the servers in the load balancer
+ * 		by their hash ring position.
+ */
+void sort_servers(load_balancer* main);
+
+/**
+ * migrate_db_on_add() - Migrates the documents from the source server's
+ * 		database to the destination server's database.
+ */
+void migrate_db_on_add(load_balancer* main, server* source_server,
+					   server* destination_server);
+
+/**
+ * migrate_cache_on_add() - Migrates the documents from the source server's
+ * 		cache to the destination server's cache.
+ */
+void migrate_cache_on_add(load_balancer* main, server* source_server,
+						  server* destination_server);
+
+
+/**
+ * migrate_db_on_remove() - Migrates the documents from the source server's
+ * 		database to the destination server's database.
+ */
+void migrate_db_on_remove(load_balancer* main, server* source_server,
+						  server* destination_server);
+
+
+/**
+ * loader_add_server_no_vnodes() - Adds a server to the load balancer
+ * 		(no virtual nodes).
+ */
+void loader_add_server_no_vnodes(load_balancer* main, unsigned int server_id,
+								 unsigned int cache_size);
+
+/**
+ * loader_add_server_vnodes() - Adds a server to the load balancer
+ * 		(with virtual nodes).
+ */
+void loader_add_server_vnodes(load_balancer* main, unsigned int server_id,
+							  unsigned int cache_size);
+
+/**
+ * loader_remove_server_no_vnodes() - Removes a server from the load balancer
+ * 		(no virtual nodes).
+ */
+void loader_remove_server_no_vnodes(load_balancer* main,
+									unsigned int server_id);
+
+/**
+ * loader_remove_server_vnodes() - Removes a server from the load balancer
+ * 		(with virtual nodes).
+ */
+void loader_remove_server_vnodes(load_balancer* main, unsigned int server_id);
 
 
 #endif /* LOAD_BALANCER_H */

@@ -1,10 +1,11 @@
 CC=gcc
-CFLAGS=-Wall -Wextra
+CFLAGS=-Wall -Wextra -g
 
 LOAD=load_balancer
 SERVER=server
 CACHE=lru_cache
 UTILS=utils
+DB=database
 
 # Add new source file names here:
 # EXTRA=<extra source file name>
@@ -13,7 +14,7 @@ UTILS=utils
 
 build: tema2
 
-tema2: main.o $(LOAD).o $(SERVER).o $(CACHE).o $(UTILS).o # $(EXTRA).o
+tema2: main.o $(LOAD).o $(SERVER).o $(CACHE).o $(UTILS).o $(DB).o # $(EXTRA).o
 	$(CC) $^ -o $@
 
 main.o: main.c
@@ -29,6 +30,9 @@ $(CACHE).o: $(CACHE).c $(CACHE).h
 	$(CC) $(CFLAGS) $^ -c
 
 $(UTILS).o: $(UTILS).c $(UTILS).h
+	$(CC) $(CFLAGS) $^ -c
+
+$(DB).o: $(DB).c $(DB).h
 	$(CC) $(CFLAGS) $^ -c
 
 # $(EXTRA).o: $(EXTRA).c $(EXTRA).h

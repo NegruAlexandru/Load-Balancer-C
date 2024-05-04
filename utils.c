@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2024, <>
+ * Copyright (c) 2024, Negru Alexandru
  */
 
 #include "utils.h"
 
 unsigned int hash_uint(void *key)
 {
-    unsigned int uint_key = *((unsigned int *)key);
+	unsigned int uint_key = *((unsigned int *)key);
 
     uint_key = ((uint_key >> 16u) ^ uint_key) * 0x45d9f3b;
     uint_key = ((uint_key >> 16u) ^ uint_key) * 0x45d9f3b;

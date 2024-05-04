@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, <>
+ * Copyright (c) 2024, Negru Alexandru
  */
 
 #ifndef UTILS_H

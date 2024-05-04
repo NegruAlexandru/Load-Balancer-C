@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, <>
+ * Copyright (c) 2024, Negru Alexandru
  */
 
 #ifndef LRU_CACHE_H
@@ -10,9 +10,10 @@
 typedef struct entry {
 	void *key;
 	void *value;
-	struct entry *prev;
 	struct entry *next;
-	unsigned int hash_ring_position;
+	struct entry *prev;
+	struct entry *next_hash;
+	struct entry *prev_hash;
 } entry;
 
 typedef struct lru_cache {
@@ -61,6 +62,6 @@ void *lru_cache_get(lru_cache *cache, void *key);
  * @param cache: Cache where the key-value pair is stored.
  * @param key: Key of the pair.
 */
-void lru_cache_remove(lru_cache *cache, void *key);
+void lru_cache_remove(lru_cache *cache, unsigned int hash, void *key);
 
 #endif /* LRU_CACHE_H */
